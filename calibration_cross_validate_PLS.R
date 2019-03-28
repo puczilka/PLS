@@ -2,13 +2,13 @@ library(mixOmics)
 
 # Get some test data
 dataset<-as.matrix(data(linnerud))
-x <- as.matrix(as.data.frame(linnerud$exercise))
-y <- as.matrix(as.data.frame(linnerud$physiological))
+X <- as.matrix(as.data.frame(linnerud$exercise))
+Y <- as.matrix(as.data.frame(linnerud$physiological))
 
 ## Create folds
-kfolds<-10
-folds <- sample(cut(seq(1,nrow(x)),breaks=kfolds,labels=1:kfolds),size=nrow(x))
-ncomp<-c(1:min(ncol(x),nrow(x)))
+kfolds <- 10
+folds <- sample(cut(seq(1,nrow(X)),breaks=kfolds,labels=1:kfolds),size=nrow(X))
+ncomp<-c(1:min(ncol(X),nrow(X)))
 Q2.matrix<-NULL
 Q2.total<-c()
 MSEP.total<-c()
@@ -16,10 +16,10 @@ MSEP.total<-c()
 for(k in 1:kfolds) {
   #Segement your data by fold using the which() function 
   testIndeces <- which(folds==k,arr.ind=TRUE)
-  x_train <- x[-testIndeces,, drop=FALSE]
-  y_train <- y[-testIndeces,, drop=FALSE]
-  x_test <- x[testIndeces,,drop=FALSE]
-  y_test <- y[testIndeces,, drop=FALSE]
+  x_train <- X[-testIndeces,, drop=FALSE]
+  y_train <- Y[-testIndeces,, drop=FALSE]
+  x_test <- X[testIndeces,,drop=FALSE]
+  y_test <- Y[testIndeces,, drop=FALSE]
   model<-pls(x_train,y_train, ncomp=max(ncomp))
   pred <- predict(model,x_test)
   MSEP<-seq(1:max(ncomp))
@@ -38,10 +38,10 @@ MSEP.total<-apply(MSEP.matrix, 2, mean)
 
 
 
-modelPLS <- pls(x,y, ncomp=1)
+modelPLS <- pls(X,Y, ncomp=1)
 ## Run PLS on all the folds
 for (j in 1:i) {
-  pls_train <- pls(trainData$x,trainData$y, ncomp=1, scale=TRUE,mode='regression') #(fit on the train data)
+  pls_train <- pls(trainData$X,trainData$Y, ncomp=1, scale=TRUE,mode='regression') #(fit on the train data)
   pls_test <- predict(pls_train,newdata=testData) #Get the predicitons for the validation set (from the model just fit on the train data)
 }
 # For each fold
@@ -63,7 +63,7 @@ for(j in 1:k){
 ## Predict values on test set
 predict(test)
 ## compute RMSEP 
-MSEP<-mean((y-y_pred)^2/nrow(y))
+MSEP<-mean((Y-y_pred)^2/nrow(Y))
 ## take the average of MSEP
 
 ### Go over all number of components and return MSEP values for every comp
